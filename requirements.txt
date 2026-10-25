@@ -1,0 +1,3 @@
+# Mini Postman has NO third-party dependencies.
+# It runs on the Python 3.10+ standard library only.
+# This file exists so `pip install -r requirements.txt` succeeds harmlessly.

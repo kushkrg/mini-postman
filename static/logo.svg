@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Mini Postman logo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF9E45"/>
+      <stop offset="0.55" stop-color="#FF6C37"/>
+      <stop offset="1" stop-color="#F43F5E"/>
+    </linearGradient>
+  </defs>
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#bg)"/>
+  <circle cx="128" cy="104" r="120" fill="#FFFFFF" opacity="0.14"/>
+  <!-- paper plane (send / deliver) -->
+  <path d="M404 104 L104 250 L222 292 L268 408 Z" fill="#FFFFFF"/>
+  <path d="M222 292 L404 104" stroke="#FF6C37" stroke-width="12" stroke-linecap="round" opacity="0.55"/>
+  <path d="M222 292 L300 268" stroke="#FF6C37" stroke-width="12" stroke-linecap="round" opacity="0.3"/>
+  <!-- motion dots -->
+  <circle cx="118" cy="356" r="13" fill="#FFFFFF" opacity="0.85"/>
+  <circle cx="84" cy="322" r="9" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="60" cy="292" r="6" fill="#FFFFFF" opacity="0.4"/>
+</svg>

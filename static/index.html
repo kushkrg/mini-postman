@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Postman — API Testing Tool</title>
+<link rel="icon" type="image/svg+xml" href="/logo.svg">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <img src="/logo.svg" alt="Mini Postman logo" width="34" height="34">
+    <div>
+      <h1>Mini Postman</h1>
+      <p>API Testing Tool</p>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button id="varsBtn" class="btn ghost" title="Variables can be used as {{name}} in the URL, headers and body">Variables <span id="varsCount" class="badge">0</span></button>
+    <button id="importBtn" class="btn ghost">Import</button>
+    <button id="exportBtn" class="btn ghost">Export</button>
+    <input type="file" id="importFile" accept="application/json" hidden>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="side-tabs">
+      <button class="side-tab active" data-side="saved">Saved</button>
+      <button class="side-tab" data-side="history">History</button>
+    </div>
+    <div id="savedList" class="side-list"></div>
+    <div id="historyList" class="side-list hidden"></div>
+    <button id="clearHistoryBtn" class="btn danger-ghost hidden">Clear history</button>
+  </aside>
+
+  <main class="main">
+    <section class="request-bar">
+      <select id="method" class="method-select">
+        <option>GET</option><option>POST</option><option>PUT</option>
+        <option>PATCH</option><option>DELETE</option><option>HEAD</option><option>OPTIONS</option>
+      </select>
+      <input id="url" class="url-input" type="text" placeholder="https://jsonplaceholder.typicode.com/posts/1" spellcheck="false">
+      <button id="sendBtn" class="btn primary">Send</button>
+      <button id="saveBtn" class="btn">Save</button>
+    </section>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="params">Params</button>
+      <button class="tab" data-tab="headers">Headers</button>
+      <button class="tab" data-tab="auth">Auth</button>
+      <button class="tab" data-tab="body">Body</button>
+      <button class="tab" data-tab="curl">cURL</button>
+    </nav>
+
+    <section id="tab-params" class="tab-panel">
+      <div class="kv-head"><span></span><span>Key</span><span>Value</span><span></span></div>
+      <div id="paramsRows" class="kv-rows"></div>
+      <button class="btn small" data-add="params">+ Add param</button>
+    </section>
+
+    <section id="tab-headers" class="tab-panel hidden">
+      <div class="kv-head"><span></span><span>Key</span><span>Value</span><span></span></div>
+      <div id="headersRows" class="kv-rows"></div>
+      <button class="btn small" data-add="headers">+ Add header</button>
+    </section>
+
+    <section id="tab-auth" class="tab-panel hidden">
+      <label class="field">Auth type
+        <select id="authType">
+          <option value="none">No Auth</option>
+          <option value="bearer">Bearer Token</option>
+          <option value="basic">Basic Auth</option>
+          <option value="apikey">API Key (header)</option>
+        </select>
+      </label>
+      <div id="auth-bearer" class="auth-fields hidden">
+        <label class="field">Token <input id="authToken" type="text" placeholder="eyJhbGciOi..." spellcheck="false"></label>
+      </div>
+      <div id="auth-basic" class="auth-fields hidden">
+        <label class="field">Username <input id="authUser" type="text" spellcheck="false"></label>
+        <label class="field">Password <input id="authPass" type="password"></label>
+      </div>
+      <div id="auth-apikey" class="auth-fields hidden">
+        <label class="field">Header name <input id="authKey" type="text" placeholder="X-API-Key" spellcheck="false"></label>
+        <label class="field">Value <input id="authValue" type="text" spellcheck="false"></label>
+      </div>
+    </section>
+
+    <section id="tab-body" class="tab-panel hidden">
+      <div class="body-type">
+        <label><input type="radio" name="bodyType" value="none" checked> none</label>
+        <label><input type="radio" name="bodyType" value="json"> JSON</label>
+        <label><input type="radio" name="bodyType" value="text"> raw text</label>
+        <label><input type="radio" name="bodyType" value="form"> form-urlencoded</label>
+        <button id="formatJsonBtn" class="btn small">Format JSON</button>
+      </div>
+      <textarea id="bodyText" class="body-editor" placeholder='{"title": "Hello", "userId": 1}' spellcheck="false"></textarea>
+      <div id="bodyFormWrap" class="hidden">
+        <div class="kv-head"><span></span><span>Key</span><span>Value</span><span></span></div>
+        <div id="bodyFormRows" class="kv-rows"></div>
+        <button class="btn small" data-add="bodyForm">+ Add field</button>
+      </div>
+    </section>
+
+    <section id="tab-curl" class="tab-panel hidden">
+      <p class="hint">This cURL command updates live as you edit the request.</p>
+      <pre id="curlPreview" class="code-box"></pre>
+      <button id="copyCurlBtn" class="btn small">Copy cURL</button>
+    </section>
+
+    <section class="response">
+      <div class="response-head">
+        <h2>Response</h2>
+        <div id="responseMeta" class="response-meta">
+          <span class="muted">No request sent yet — try a sample:</span>
+          <button class="btn small sample" data-sample="get-post">GET a post</button>
+          <button class="btn small sample" data-sample="create-post">POST create</button>
+          <button class="btn small sample" data-sample="headers">Echo headers</button>
+        </div>
+      </div>
+      <nav class="tabs">
+        <button class="tab active" data-rtab="rbody">Body</button>
+        <button class="tab" data-rtab="rheaders">Headers</button>
+      </nav>
+      <pre id="responseBody" class="code-box response-body">Send a request and the response will appear here.</pre>
+      <div id="responseHeaders" class="hidden"></div>
+      <div class="response-actions">
+        <button id="copyRespBtn" class="btn small">Copy response</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<dialog id="varsDialog">
+  <form method="dialog">
+    <h3>Variables</h3>
+    <p class="hint">Use <code>{{name}}</code> anywhere in the URL, header values or body. Example: <code>{{base_url}}/users</code></p>
+    <div class="kv-head"><span></span><span>Name</span><span>Value</span><span></span></div>
+    <div id="varsRows" class="kv-rows"></div>
+    <button class="btn small" id="addVarBtn" type="button">+ Add variable</button>
+    <div class="dialog-actions">
+      <button class="btn primary" id="varsDoneBtn" value="default">Done</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast hidden"></div>
+<script src="/app.js"></script>
+</body>
+</html>

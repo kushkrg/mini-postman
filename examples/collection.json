@@ -1,0 +1,36 @@
+{
+  "name": "Mini Postman Collection",
+  "variables": [
+    { "key": "base_url", "value": "https://jsonplaceholder.typicode.com" }
+  ],
+  "saved": [
+    {
+      "id": 1,
+      "name": "List posts",
+      "spec": {
+        "method": "GET",
+        "url": "{{base_url}}/posts",
+        "params": [{ "enabled": true, "key": "_limit", "value": "5" }],
+        "headers": [],
+        "auth": { "type": "none", "token": "", "username": "", "password": "", "key": "", "value": "" },
+        "body_type": "none",
+        "body": "",
+        "body_form": []
+      }
+    },
+    {
+      "id": 2,
+      "name": "Create a post",
+      "spec": {
+        "method": "POST",
+        "url": "{{base_url}}/posts",
+        "params": [],
+        "headers": [],
+        "auth": { "type": "none", "token": "", "username": "", "password": "", "key": "", "value": "" },
+        "body_type": "json",
+        "body": "{\n  \"title\": \"Hello\",\n  \"body\": \"Created with Mini Postman\",\n  \"userId\": 1\n}",
+        "body_form": []
+      }
+    }
+  ]
+}
