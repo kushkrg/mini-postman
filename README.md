@@ -24,7 +24,7 @@
 - **Query params & headers** — unlimited key/value rows, enable/disable each row
 - **Request bodies** — raw JSON (with validation + one-click formatting), raw text, and form-urlencoded
 - **Auth built in** — Bearer token, Basic Auth, and API-key header
-- **Variables** — define `{{base_url}}` once and reuse it in the URL, headers and body
+- **Variables & environments** — define `{{base_url}}` once and reuse it in the URL, headers and body; group variables into named **environments** (local / staging / production) and switch between them from the top bar
 - **Beautiful response viewer** — status pill, response time, size, syntax-highlighted JSON, full response headers
 - **History** — your last 50 requests, one click to re-run
 - **Saved requests & collections** — save, organise, and **import/export** collections as JSON
