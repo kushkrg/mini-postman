@@ -17,6 +17,7 @@
     </div>
   </div>
   <div class="topbar-actions">
+    <select id="envSelect" class="env-select" title="Active environment"></select>
     <button id="varsBtn" class="btn ghost" title="Variables can be used as {{name}} in the URL, headers and body">Variables <span id="varsCount" class="badge">0</span></button>
     <button id="importBtn" class="btn ghost">Import</button>
     <button id="exportBtn" class="btn ghost">Export</button>
@@ -137,6 +138,14 @@
   <form method="dialog">
     <h3>Variables</h3>
     <p class="hint">Use <code>{{name}}</code> anywhere in the URL, header values or body. Example: <code>{{base_url}}/users</code></p>
+    <div class="env-manager">
+      <label class="field">Environment name <input id="envName" type="text" spellcheck="false"></label>
+      <div class="env-actions">
+        <button class="btn small" id="newEnvBtn" type="button">+ New environment</button>
+        <button class="btn small danger-ghost" id="delEnvBtn" type="button">Delete environment</button>
+      </div>
+      <p class="hint">Each environment keeps its own variables. Switch environments from the top bar; the same request then runs against local, staging or production values.</p>
+    </div>
     <div class="kv-head"><span></span><span>Name</span><span>Value</span><span></span></div>
     <div id="varsRows" class="kv-rows"></div>
     <button class="btn small" id="addVarBtn" type="button">+ Add variable</button>

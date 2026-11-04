@@ -14,7 +14,50 @@ const store = {
   set(key, value) { localStorage.setItem("mp:" + key, JSON.stringify(value)); },
 };
 
-let variables = store.get("variables", []);   // [{key, value}]
+/* ---------------- environments ----------------
+   Variables live inside named environments (issue #3): one set of
+   variables per environment, switched from the top bar. The ACTIVE
+   environment's variables are mirrored to `variables` (and to the
+   legacy "variables" storage key) so substitution, export and any
+   older saved data keep working unchanged. */
+function _seedEnvironments() {
+  return [{ id: "default", name: "Default", variables: store.get("variables", []) }];
+}
+let environments = store.get("environments", null);
+if (!Array.isArray(environments) || !environments.length) {
+  environments = _seedEnvironments();
+}
+let activeEnvironmentId = store.get("activeEnvironmentId", environments[0].id);
+if (!environments.some((e) => e.id === activeEnvironmentId)) {
+  activeEnvironmentId = environments[0].id;
+}
+let variables = [];   // [{key, value}] of the active environment
+function activeEnvironment() {
+  return environments.find((e) => e.id === activeEnvironmentId) || environments[0];
+}
+function syncVariables() {
+  variables = activeEnvironment().variables || [];
+  store.set("variables", variables);
+}
+function persistEnvironments() {
+  store.set("environments", environments);
+  store.set("activeEnvironmentId", activeEnvironmentId);
+  syncVariables();
+  renderEnvSelect();
+}
+function renderEnvSelect() {
+  const sel = $("#envSelect");
+  if (!sel) return;
+  sel.innerHTML = "";
+  environments.forEach((e) => {
+    const opt = document.createElement("option");
+    opt.value = e.id;
+    opt.textContent = e.name;
+    sel.appendChild(opt);
+  });
+  sel.value = activeEnvironmentId;
+}
+syncVariables();
 let saved = store.get("saved", []);           // [{id, name, spec}]
 let history = store.get("history", []);       // [{id, at, spec, status}]
 let lastResponseBody = "";
@@ -305,22 +348,62 @@ function init() {
   $("#clearHistoryBtn").addEventListener("click", () => { history = []; store.set("history", history); renderSide(); });
   $$(".sample").forEach((btn) => btn.addEventListener("click", () => { loadSpec(SAMPLES[btn.dataset.sample]); send(); }));
 
+  /* environments: top-bar quick switch */
+  renderEnvSelect();
+  $("#envSelect").addEventListener("change", () => {
+    activeEnvironmentId = $("#envSelect").value;
+    persistEnvironments();
+    renderSide(); refreshCurl();
+    toast("Environment: " + activeEnvironment().name);
+  });
+
   /* variables dialog */
   const dlg = $("#varsDialog");
   $("#varsBtn").addEventListener("click", () => {
+    $("#envName").value = activeEnvironment().name;
     const wrap = $("#varsRows"); wrap.innerHTML = "";
     (variables.length ? variables : [{}]).forEach((v) => kvRow(wrap, v.key || "", v.value || "", true));
     dlg.showModal();
   });
+  $("#newEnvBtn").addEventListener("click", () => {
+    const name = prompt("Environment name:", "New environment");
+    if (name === null) return;
+    const env = { id: "env-" + Date.now(), name: name.trim() || "Untitled", variables: [] };
+    environments.push(env);
+    activeEnvironmentId = env.id;
+    persistEnvironments();
+    $("#envName").value = env.name;
+    const wrap = $("#varsRows"); wrap.innerHTML = "";
+    kvRow(wrap);
+    renderSide();
+    toast("Environment created: " + env.name);
+  });
+  $("#delEnvBtn").addEventListener("click", () => {
+    if (environments.length <= 1) { toast("Keep at least one environment"); return; }
+    const env = activeEnvironment();
+    if (!confirm("Delete environment \"" + env.name + "\" and its variables?")) return;
+    environments = environments.filter((e) => e.id !== env.id);
+    activeEnvironmentId = environments[0].id;
+    persistEnvironments();
+    $("#envName").value = activeEnvironment().name;
+    const wrap = $("#varsRows"); wrap.innerHTML = "";
+    (variables.length ? variables : [{}]).forEach((v) => kvRow(wrap, v.key || "", v.value || "", true));
+    renderSide();
+    toast("Environment deleted");
+  });
   $("#addVarBtn").addEventListener("click", () => kvRow($("#varsRows")));
   $("#varsDoneBtn").addEventListener("click", () => {
-    variables = readKv($("#varsRows")).map((r) => ({ key: r.key, value: r.value }));
-    store.set("variables", variables); renderSide();
+    const env = activeEnvironment();
+    env.variables = readKv($("#varsRows")).map((r) => ({ key: r.key, value: r.value }));
+    const name = $("#envName").value.trim();
+    if (name) env.name = name;
+    persistEnvironments();
+    renderSide(); refreshCurl();
   });
 
   /* import / export */
   $("#exportBtn").addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify({ name: "Mini Postman Collection", saved, variables }, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ name: "Mini Postman Collection", saved, variables, environments, activeEnvironmentId }, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob); a.download = "mini-postman-collection.json"; a.click();
     URL.revokeObjectURL(a.href);
@@ -332,6 +415,12 @@ function init() {
       const data = JSON.parse(await file.text());
       if (Array.isArray(data.saved)) { saved = data.saved.concat(saved); store.set("saved", saved); }
       if (Array.isArray(data.variables)) { variables = data.variables; store.set("variables", variables); }
+      if (Array.isArray(data.environments) && data.environments.length) {
+        environments = data.environments;
+        activeEnvironmentId = environments.some((e) => e.id === data.activeEnvironmentId)
+          ? data.activeEnvironmentId : environments[0].id;
+        persistEnvironments();
+      }
       renderSide(); toast("Imported");
     } catch { toast("Import failed: invalid JSON file"); }
     e.target.value = "";
