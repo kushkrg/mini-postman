@@ -54,7 +54,7 @@ python app.py --host 0.0.0.0       # allow access from other devices on your net
 1. Pick a **method** and paste your API **URL**.
 2. Add **Params**, **Headers**, **Auth** and a **Body** using the tabs.
 3. Hit **Send** (or `Ctrl + Enter`) and inspect the response — status, time, size, pretty-printed body and headers.
-4. **Save** requests you run often, define **Variables** for base URLs and tokens, and **Export** your collection to share it.
+4. **Save** requests you run often, define **Variables** for base URLs and tokens, group them into **Environments** (local / staging / production) and switch from the top bar, and **Export** your collection to share it.
 
 Three one-click samples are built in (GET a post, POST create, echo headers) so you can try it instantly.
 
@@ -86,7 +86,7 @@ mini-postman/
 ├── static/
 │   ├── index.html            # Single-page UI
 │   ├── styles.css            # Dark theme
-│   ├── app.js                # UI logic, history, saved, variables, cURL
+│   ├── app.js                # UI logic, history, saved, environments, cURL
 │   └── logo.svg
 ├── assets/
 │   └── logo.svg              # Project logo
